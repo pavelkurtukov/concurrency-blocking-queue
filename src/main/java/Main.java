@@ -37,83 +37,10 @@ public class Main {
             System.out.println("Генерация завершена\n");
         };
 
-        // Процесс поиска текста с максимальным кол-вом символов "a"
-        Runnable findTextWithMaxACount = () -> {
-            String textWithMaxA = "";
-            int maxACount = 0;
-            // Проверяем очередь до тех пор, пока работает процесс генерации текстов и пока не опустеет наполняемая им очередь
-            while (isGenerating.get() || !queueA.isEmpty()) {
-                try {
-                    // Берём текст из очереди
-                    String text = queueA.take();
-
-                    // Считаем кол-во символов "a"
-                    int aCount = text.length() - text.replace("a", "").length();
-
-                    // Проверяем на максимум кол-ва букв
-                    if (aCount > maxACount) {
-                        maxACount = aCount;
-                        textWithMaxA = text;
-                    }
-                } catch (InterruptedException e) {
-                    break;
-                }
-            }
-            // Выводим результат
-            System.out.printf("Текст с наибольшим числом букв \"a\" (%d):\n%s\n\n", maxACount, textWithMaxA.substring(0, 99) + "...");
-        };
-
-        // Процесс поиска текста с максимальным кол-вом символов "b"
-        Runnable findTextWithMaxBCount = () -> {
-            String textWithMaxB = "";
-            int maxBCount = 0;
-            // Проверяем очередь до тех пор, пока работает процесс генерации текстов и пока не опустеет наполняемая им очередь
-            while (isGenerating.get() || !queueB.isEmpty()) {
-                try {
-                    // Берём текст из очереди
-                    String text = queueB.take();
-
-                    // Считаем кол-во символов "a"
-                    int bCount = text.length() - text.replace("b", "").length();
-
-                    // Проверяем на максимум кол-ва букв
-                    if (bCount > maxBCount) {
-                        maxBCount = bCount;
-                        textWithMaxB = text;
-                    }
-                } catch (InterruptedException e) {
-                    break;
-                }
-            }
-            // Выводим результат
-            System.out.printf("Текст с наибольшим числом букв \"b\" (%d):\n%s\n\n", maxBCount, textWithMaxB.substring(0, 99) + "...");
-        };
-
-        // Процесс поиска текста с максимальным кол-вом символов "c"
-        Runnable findTextWithMaxCCount = () -> {
-            String textWithMaxC = "";
-            int maxCCount = 0;
-            // Проверяем очередь до тех пор, пока работает процесс генерации текстов и пока не опустеет наполняемая им очередь
-            while (isGenerating.get() || !queueC.isEmpty()) {
-                try {
-                    // Берём текст из очереди
-                    String text = queueC.take();
-
-                    // Считаем кол-во символов "a"
-                    int cCount = text.length() - text.replace("c", "").length();
-
-                    // Проверяем на максимум кол-ва букв
-                    if (cCount > maxCCount) {
-                        maxCCount = cCount;
-                        textWithMaxC = text;
-                    }
-                } catch (InterruptedException e) {
-                    break;
-                }
-            }
-            // Выводим результат
-            System.out.printf("Текст с наибольшим числом букв \"c\" (%d):\n%s\n\n", maxCCount, textWithMaxC.substring(0, 99) + "...");
-        };
+        // Процессы поиска текстов с максимальным кол-вом символов
+        Runnable findTextWithMaxACount = () -> findTextWithMaxLetterCount(queueA, 'a');
+        Runnable findTextWithMaxBCount = () -> findTextWithMaxLetterCount(queueB, 'b');
+        Runnable findTextWithMaxCCount = () -> findTextWithMaxLetterCount(queueC, 'c');
 
         // Определяем потоки
         Thread generateTextThread = new Thread(generateTextProcess);
@@ -143,4 +70,31 @@ public class Main {
         }
         return text.toString();
     }
+
+    // Процесс поиска текста с максимальным кол-вом указанного символа
+    static void findTextWithMaxLetterCount(BlockingQueue<String> queue, Character letter) {
+        String textWithMaxLetter = "";
+        int maxLetterCount = 0;
+        // Проверяем очередь до тех пор, пока работает процесс генерации текстов и пока не опустеет наполняемая им очередь
+        while (isGenerating.get() || !queue.isEmpty()) {
+            try {
+                // Берём текст из очереди
+                String text = queue.take();
+
+                // Считаем кол-во символов
+                int letterCount = text.length() - text.replace(letter.toString(), "").length();
+
+                // Проверяем на максимум кол-ва букв
+                if (letterCount > maxLetterCount) {
+                    maxLetterCount = letterCount;
+                    textWithMaxLetter = text;
+                }
+            } catch (InterruptedException e) {
+                break;
+            }
+        }
+        // Выводим результат
+        System.out.printf("Текст с наибольшим числом букв \"%c\" (%d):\n%s\n\n",
+                letter, maxLetterCount, textWithMaxLetter.substring(0, 99) + "...");
+    };
 }
